@@ -440,7 +440,7 @@ function App() {
   return (
     <div style={styles.page}>
       <div style={styles.container}>
-        <h1 style={styles.title}>🌍 AI Translator</h1>
+        <h1 style={styles.title}>AI Translator</h1>
 
         <div style={styles.languageRow}>
           <select
