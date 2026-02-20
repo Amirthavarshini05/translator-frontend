@@ -697,44 +697,43 @@ function App() {
 
         {/* History Table */}
         {showHistory && (
-          <div style={styles.historyContainer}>
-            <div style={styles.historyHeader}>
-              <h2>Translation History</h2>
-              <button
-                style={styles.closeButton}
-                onClick={() => setShowHistory(false)}
-              >
-                ✖
-              </button>
-            </div>
+  <div style={styles.historyContainer}>
+    <div style={styles.historyHeader}>
+      <h2>Translation History</h2>
+      <button
+        style={styles.closeButton}
+        onClick={() => setShowHistory(false)}
+      >
+        ✖
+      </button>
+    </div>
 
-            {history.length === 0 ? (
-              <p>No translations yet.</p>
-            ) : (
-              <table style={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Original</th>
-                    <th>Translated</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.map((item) => (
-                    <tr key={item.translationId}>
-                      <td>
-                        {languageLabel(item.sourceLanguage)}: {item.text}
-                      </td>
-                      <td>
-                        {languageLabel(item.targetLanguage)}:{" "}
-                        {item.translatedText}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        )}
+    {history.length === 0 ? (
+      <p>No translations yet.</p>
+    ) : (
+      <table style={styles.table}>
+        <thead>
+          <tr>
+            <th style={styles.th}>Original</th>
+            <th style={styles.th}>Translated</th>
+          </tr>
+        </thead>
+        <tbody>
+          {history.map((item) => (
+            <tr key={item.translationId}>
+              <td style={styles.td}>
+                <strong>{item.sourceLanguage?.toUpperCase()}</strong> → {item.text}
+              </td>
+              <td style={styles.td}>
+                <strong>{item.targetLanguage?.toUpperCase()}</strong> → {item.translatedText}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+)}
       </div>
     </div>
   );
@@ -827,30 +826,49 @@ const styles = {
     cursor: "pointer",
   },
   historyContainer: {
-    marginTop: "30px",
-    background: "#f9f9ff",
-    padding: "20px",
-    borderRadius: "10px",
-  },
-  historyHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  closeButton: {
-    border: "none",
-    background: "red",
-    color: "white",
-    borderRadius: "50%",
-    width: "30px",
-    height: "30px",
-    cursor: "pointer",
-  },
-  table: {
-    width: "100%",
-    marginTop: "20px",
-    borderCollapse: "collapse",
-  },
+  marginTop: "40px",
+  background: "#ffffff",
+  padding: "30px",
+  borderRadius: "15px",
+  width: "100%",
+  overflowX: "auto",
+},
+
+historyHeader: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: "20px",
+},
+
+closeButton: {
+  border: "none",
+  background: "red",
+  color: "white",
+  borderRadius: "50%",
+  width: "35px",
+  height: "35px",
+  cursor: "pointer",
+  fontSize: "16px",
+},
+
+table: {
+  width: "100%",
+  borderCollapse: "collapse",
+},
+
+th: {
+  borderBottom: "2px solid #ddd",
+  padding: "15px",
+  textAlign: "left",
+  background: "#f3f4ff",
+},
+
+td: {
+  padding: "15px",
+  borderBottom: "1px solid #eee",
+  verticalAlign: "top",
+},
 };
 
 export default App;
