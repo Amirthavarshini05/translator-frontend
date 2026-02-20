@@ -551,7 +551,6 @@ const styles = {
 };
 
 export default App;*/
-
 import { useState } from "react";
 
 function App() {
@@ -567,9 +566,9 @@ function App() {
   const API_BASE =
     "https://9d1yi8itd1.execute-api.ap-south-1.amazonaws.com/prodx";
 
-  const API_KEY = "JAd7QAr9Fq7j402D2iu1u9tZtv02KraeKCnFroQ7";
+  const API_KEY = "YOUR_API_KEY_HERE";
 
-  // 🔹 Translate Function
+  // 🔹 Translate
   const handleTranslate = async () => {
     if (!text.trim()) return;
 
@@ -592,10 +591,7 @@ function App() {
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || data.error);
-      }
+      if (!response.ok) throw new Error(data.message || data.error);
 
       setTranslatedText(data.translatedText);
     } catch (error) {
@@ -616,7 +612,7 @@ function App() {
       });
 
       const data = await response.json();
-      setHistory(data);
+      setHistory(data.reverse());
       setShowHistory(true);
     } catch (error) {
       alert("Failed to load history");
@@ -630,12 +626,24 @@ function App() {
     setTranslatedText(text);
   };
 
+  const languageLabel = (code) => {
+    const map = {
+      en: "English",
+      ta: "Tamil",
+      es: "Spanish",
+      hi: "Hindi",
+      fr: "French",
+      de: "German",
+    };
+    return map[code] || code;
+  };
+
   return (
     <div style={styles.page}>
       <div style={styles.container}>
         <h1 style={styles.title}>AI Translator</h1>
 
-        {/* Language Selectors */}
+        {/* Language Select */}
         <div style={styles.languageRow}>
           <select
             style={styles.select}
@@ -658,7 +666,7 @@ function App() {
           </select>
         </div>
 
-        {/* Input + Output */}
+        {/* Input / Output */}
         <div style={styles.splitArea}>
           <textarea
             style={styles.textarea}
@@ -683,34 +691,47 @@ function App() {
           {loading ? "Translating..." : "Translate 🚀"}
         </button>
 
-        <button
-          style={styles.historyButton}
-          onClick={fetchHistory}
-        >
+        <button style={styles.historyButton} onClick={fetchHistory}>
           View History 📜
         </button>
 
-        {/* History Section */}
+        {/* History Table */}
         {showHistory && (
-          <div style={styles.historySection}>
-            <h2>Translation History</h2>
+          <div style={styles.historyContainer}>
+            <div style={styles.historyHeader}>
+              <h2>Translation History</h2>
+              <button
+                style={styles.closeButton}
+                onClick={() => setShowHistory(false)}
+              >
+                ✖
+              </button>
+            </div>
 
             {history.length === 0 ? (
               <p>No translations yet.</p>
             ) : (
-              history
-                .slice()
-                .reverse()
-                .map((item) => (
-                  <div key={item.translationId} style={styles.historyCard}>
-                    <p>
-                      <strong>Original:</strong> {item.text}
-                    </p>
-                    <p>
-                      <strong>Translated:</strong> {item.translatedText}
-                    </p>
-                  </div>
-                ))
+              <table style={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Original</th>
+                    <th>Translated</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.map((item) => (
+                    <tr key={item.translationId}>
+                      <td>
+                        {languageLabel(item.sourceLanguage)}: {item.text}
+                      </td>
+                      <td>
+                        {languageLabel(item.targetLanguage)}:{" "}
+                        {item.translatedText}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             )}
           </div>
         )}
@@ -733,14 +754,12 @@ const languageOptions = (
 const styles = {
   page: {
     minHeight: "100vh",
-    width: "100vw",
     background: "linear-gradient(135deg, #667eea, #764ba2)",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     padding: "40px",
   },
-
   container: {
     width: "100%",
     maxWidth: "1100px",
@@ -749,25 +768,20 @@ const styles = {
     padding: "40px",
     boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
   },
-
   title: {
     textAlign: "center",
     marginBottom: "30px",
   },
-
   languageRow: {
     display: "flex",
     justifyContent: "center",
-    alignItems: "center",
     gap: "20px",
     marginBottom: "30px",
   },
-
   select: {
     padding: "10px",
     borderRadius: "8px",
   },
-
   swapButton: {
     padding: "10px",
     borderRadius: "50%",
@@ -776,27 +790,23 @@ const styles = {
     color: "white",
     cursor: "pointer",
   },
-
   splitArea: {
     display: "flex",
     gap: "20px",
     marginBottom: "20px",
   },
-
   textarea: {
     flex: 1,
     padding: "15px",
     borderRadius: "10px",
     border: "1px solid #ccc",
   },
-
   outputArea: {
     flex: 1,
     padding: "15px",
     borderRadius: "10px",
     background: "#f3f4ff",
   },
-
   translateButton: {
     width: "100%",
     padding: "15px",
@@ -807,7 +817,6 @@ const styles = {
     color: "white",
     cursor: "pointer",
   },
-
   historyButton: {
     width: "100%",
     padding: "12px",
@@ -817,16 +826,30 @@ const styles = {
     color: "white",
     cursor: "pointer",
   },
-
-  historySection: {
+  historyContainer: {
     marginTop: "30px",
-  },
-
-  historyCard: {
-    padding: "15px",
-    marginBottom: "10px",
+    background: "#f9f9ff",
+    padding: "20px",
     borderRadius: "10px",
-    background: "#eef1ff",
+  },
+  historyHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  closeButton: {
+    border: "none",
+    background: "red",
+    color: "white",
+    borderRadius: "50%",
+    width: "30px",
+    height: "30px",
+    cursor: "pointer",
+  },
+  table: {
+    width: "100%",
+    marginTop: "20px",
+    borderCollapse: "collapse",
   },
 };
 
