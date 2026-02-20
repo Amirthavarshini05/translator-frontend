@@ -1,89 +1,4 @@
-/*import { useState } from "react";
-
-function App() {
-  const [text, setText] = useState("");
-  const [sourceLanguage, setSourceLanguage] = useState("en");
-  const [targetLanguage, setTargetLanguage] = useState("ta");
-  const [translatedText, setTranslatedText] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const API_BASE = "https://9d1yi8itd1.execute-api.ap-south-1.amazonaws.com/prodx";
-
-  const handleTranslate = async () => {
-    setLoading(true);
-    setTranslatedText("");
-
-    try {
-      const response = await fetch(`${API_BASE}/translate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: "123",
-          sourceLanguage,
-          targetLanguage,
-          text,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Something went wrong");
-      }
-
-      setTranslatedText(data.translatedText);
-    } catch (error) {
-      alert("Error: " + error.message);
-    }
-
-    setLoading(false);
-  };
-
-  return (
-    <div style={{ padding: "40px", fontFamily: "Arial" }}>
-      <h2>🌍 AI Translator</h2>
-
-      <textarea
-        rows="4"
-        style={{ width: "100%", marginBottom: "10px" }}
-        placeholder="Enter text..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
-
-      <div style={{ marginBottom: "10px" }}>
-        <select value={sourceLanguage} onChange={(e) => setSourceLanguage(e.target.value)}>
-          <option value="en">English</option>
-          <option value="ta">Tamil</option>
-          <option value="es">Spanish</option>
-        </select>
-
-        <span style={{ margin: "0 10px" }}>→</span>
-
-        <select value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value)}>
-          <option value="ta">Tamil</option>
-          <option value="en">English</option>
-          <option value="es">Spanish</option>
-        </select>
-      </div>
-
-      <button onClick={handleTranslate} disabled={loading}>
-        {loading ? "Translating..." : "Translate"}
-      </button>
-
-      {translatedText && (
-        <div style={{ marginTop: "20px" }}>
-          <h3>Translated Result:</h3>
-          <p>{translatedText}</p>
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default App;*//*
+/*
 import { useState } from "react";
 
 function App() {
@@ -380,7 +295,7 @@ const styles = {
   },
 };
 
-export default App;*/
+export default App;*//*
 
 import { useState } from "react";
 
@@ -632,6 +547,286 @@ const styles = {
     fontSize: "18px",
     fontWeight: "600",
     cursor: "pointer",
+  },
+};
+
+export default App;*/
+
+import { useState } from "react";
+
+function App() {
+  const [text, setText] = useState("");
+  const [sourceLanguage, setSourceLanguage] = useState("en");
+  const [targetLanguage, setTargetLanguage] = useState("ta");
+  const [translatedText, setTranslatedText] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const [history, setHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  const API_BASE =
+    "https://9d1yi8itd1.execute-api.ap-south-1.amazonaws.com/prodx";
+
+  const API_KEY = "JAd7QAr9Fq7j402D2iu1u9tZtv02KraeKCnFroQ7";
+
+  // 🔹 Translate Function
+  const handleTranslate = async () => {
+    if (!text.trim()) return;
+
+    setLoading(true);
+    setTranslatedText("");
+
+    try {
+      const response = await fetch(`${API_BASE}/translate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": API_KEY,
+        },
+        body: JSON.stringify({
+          userId: "123",
+          sourceLanguage,
+          targetLanguage,
+          text,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error);
+      }
+
+      setTranslatedText(data.translatedText);
+    } catch (error) {
+      alert("Error: " + error.message);
+    }
+
+    setLoading(false);
+  };
+
+  // 🔹 Fetch History
+  const fetchHistory = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/history`, {
+        method: "GET",
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      });
+
+      const data = await response.json();
+      setHistory(data);
+      setShowHistory(true);
+    } catch (error) {
+      alert("Failed to load history");
+    }
+  };
+
+  const handleSwap = () => {
+    setSourceLanguage(targetLanguage);
+    setTargetLanguage(sourceLanguage);
+    setText(translatedText);
+    setTranslatedText(text);
+  };
+
+  return (
+    <div style={styles.page}>
+      <div style={styles.container}>
+        <h1 style={styles.title}>AI Translator</h1>
+
+        {/* Language Selectors */}
+        <div style={styles.languageRow}>
+          <select
+            style={styles.select}
+            value={sourceLanguage}
+            onChange={(e) => setSourceLanguage(e.target.value)}
+          >
+            {languageOptions}
+          </select>
+
+          <button style={styles.swapButton} onClick={handleSwap}>
+            ⇄
+          </button>
+
+          <select
+            style={styles.select}
+            value={targetLanguage}
+            onChange={(e) => setTargetLanguage(e.target.value)}
+          >
+            {languageOptions}
+          </select>
+        </div>
+
+        {/* Input + Output */}
+        <div style={styles.splitArea}>
+          <textarea
+            style={styles.textarea}
+            placeholder="Enter text..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+
+          <div style={styles.outputArea}>
+            {loading
+              ? "Translating..."
+              : translatedText || "Translation will appear here..."}
+          </div>
+        </div>
+
+        {/* Buttons */}
+        <button
+          style={styles.translateButton}
+          onClick={handleTranslate}
+          disabled={loading}
+        >
+          {loading ? "Translating..." : "Translate 🚀"}
+        </button>
+
+        <button
+          style={styles.historyButton}
+          onClick={fetchHistory}
+        >
+          View History 📜
+        </button>
+
+        {/* History Section */}
+        {showHistory && (
+          <div style={styles.historySection}>
+            <h2>Translation History</h2>
+
+            {history.length === 0 ? (
+              <p>No translations yet.</p>
+            ) : (
+              history
+                .slice()
+                .reverse()
+                .map((item) => (
+                  <div key={item.translationId} style={styles.historyCard}>
+                    <p>
+                      <strong>Original:</strong> {item.text}
+                    </p>
+                    <p>
+                      <strong>Translated:</strong> {item.translatedText}
+                    </p>
+                  </div>
+                ))
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const languageOptions = (
+  <>
+    <option value="en">English</option>
+    <option value="ta">Tamil</option>
+    <option value="es">Spanish</option>
+    <option value="hi">Hindi</option>
+    <option value="fr">French</option>
+    <option value="de">German</option>
+  </>
+);
+
+const styles = {
+  page: {
+    minHeight: "100vh",
+    width: "100vw",
+    background: "linear-gradient(135deg, #667eea, #764ba2)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "40px",
+  },
+
+  container: {
+    width: "100%",
+    maxWidth: "1100px",
+    background: "white",
+    borderRadius: "20px",
+    padding: "40px",
+    boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
+  },
+
+  title: {
+    textAlign: "center",
+    marginBottom: "30px",
+  },
+
+  languageRow: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: "20px",
+    marginBottom: "30px",
+  },
+
+  select: {
+    padding: "10px",
+    borderRadius: "8px",
+  },
+
+  swapButton: {
+    padding: "10px",
+    borderRadius: "50%",
+    border: "none",
+    background: "#667eea",
+    color: "white",
+    cursor: "pointer",
+  },
+
+  splitArea: {
+    display: "flex",
+    gap: "20px",
+    marginBottom: "20px",
+  },
+
+  textarea: {
+    flex: 1,
+    padding: "15px",
+    borderRadius: "10px",
+    border: "1px solid #ccc",
+  },
+
+  outputArea: {
+    flex: 1,
+    padding: "15px",
+    borderRadius: "10px",
+    background: "#f3f4ff",
+  },
+
+  translateButton: {
+    width: "100%",
+    padding: "15px",
+    marginBottom: "10px",
+    borderRadius: "10px",
+    border: "none",
+    background: "#667eea",
+    color: "white",
+    cursor: "pointer",
+  },
+
+  historyButton: {
+    width: "100%",
+    padding: "12px",
+    borderRadius: "10px",
+    border: "none",
+    background: "#444",
+    color: "white",
+    cursor: "pointer",
+  },
+
+  historySection: {
+    marginTop: "30px",
+  },
+
+  historyCard: {
+    padding: "15px",
+    marginBottom: "10px",
+    borderRadius: "10px",
+    background: "#eef1ff",
   },
 };
 
