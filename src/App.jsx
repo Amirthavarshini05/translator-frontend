@@ -566,7 +566,7 @@ function App() {
   const API_BASE =
     "https://9d1yi8itd1.execute-api.ap-south-1.amazonaws.com/prodx";
 
-  const API_KEY = "YOUR_API_KEY_HERE";
+  const API_KEY = "JAd7QAr9Fq7j402D2iu1u9tZtv02KraeKCnFroQ7";
 
   // 🔹 Translate
   const handleTranslate = async () => {
@@ -619,6 +619,44 @@ function App() {
     }
   };
 
+  // 🔹 Delete Translation
+  // 🔹 Delete Translation
+const handleDelete = async (id) => {
+  const confirmDelete = window.confirm("Delete this translation?");
+  if (!confirmDelete) return;
+
+  console.log("Deleting ID:", id);
+  console.log("DELETE URL:", `${API_BASE}/history/${id}`);
+
+  try {
+    const response = await fetch(`${API_BASE}/history/${id}`, {
+      method: "DELETE",
+      headers: {
+        "x-api-key": API_KEY,
+      },
+    });
+
+    console.log("Delete response status:", response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.log("Delete error response:", errorText);
+      throw new Error("Delete failed");
+    }
+
+    console.log("Delete successful");
+
+    // Remove from UI instantly
+    setHistory((prev) =>
+      prev.filter((item) => item.translationId !== id)
+    );
+
+  } catch (error) {
+    console.log("Delete catch error:", error);
+    alert("Error deleting translation");
+  }
+};
+
   const handleSwap = () => {
     setSourceLanguage(targetLanguage);
     setTargetLanguage(sourceLanguage);
@@ -626,24 +664,11 @@ function App() {
     setTranslatedText(text);
   };
 
-  const languageLabel = (code) => {
-    const map = {
-      en: "English",
-      ta: "Tamil",
-      es: "Spanish",
-      hi: "Hindi",
-      fr: "French",
-      de: "German",
-    };
-    return map[code] || code;
-  };
-
   return (
     <div style={styles.page}>
       <div style={styles.container}>
         <h1 style={styles.title}>AI Translator</h1>
 
-        {/* Language Select */}
         <div style={styles.languageRow}>
           <select
             style={styles.select}
@@ -666,7 +691,6 @@ function App() {
           </select>
         </div>
 
-        {/* Input / Output */}
         <div style={styles.splitArea}>
           <textarea
             style={styles.textarea}
@@ -682,7 +706,6 @@ function App() {
           </div>
         </div>
 
-        {/* Buttons */}
         <button
           style={styles.translateButton}
           onClick={handleTranslate}
@@ -695,45 +718,62 @@ function App() {
           View History 📜
         </button>
 
-        {/* History Table */}
+        {/* 🔥 HISTORY TABLE */}
         {showHistory && (
-  <div style={styles.historyContainer}>
-    <div style={styles.historyHeader}>
-      <h2>Translation History</h2>
-      <button
-        style={styles.closeButton}
-        onClick={() => setShowHistory(false)}
-      >
-        ✖
-      </button>
-    </div>
+          <div style={styles.historyContainer}>
+            <div style={styles.historyHeader}>
+              <h2>Translation History</h2>
+              <button
+                style={styles.closeButton}
+                onClick={() => setShowHistory(false)}
+              >
+                ✖
+              </button>
+            </div>
 
-    {history.length === 0 ? (
-      <p>No translations yet.</p>
-    ) : (
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            <th style={styles.th}>Original</th>
-            <th style={styles.th}>Translated</th>
-          </tr>
-        </thead>
-        <tbody>
-          {history.map((item) => (
-            <tr key={item.translationId}>
-              <td style={styles.td}>
-                <strong>{item.sourceLanguage?.toUpperCase()}</strong> → {item.text}
-              </td>
-              <td style={styles.td}>
-                <strong>{item.targetLanguage?.toUpperCase()}</strong> → {item.translatedText}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    )}
-  </div>
-)}
+            {history.length === 0 ? (
+              <p>No translations yet.</p>
+            ) : (
+              <table style={styles.table}>
+                <thead>
+                  <tr>
+                    <th style={styles.th}>Original</th>
+                    <th style={styles.th}>Translated</th>
+                    <th style={styles.th}>Delete</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.map((item) => (
+                    <tr key={item.translationId}>
+                      <td style={styles.td}>
+                        <strong>{item.sourceLanguage?.toUpperCase()}</strong>
+                        {" → "}
+                        {item.text}
+                      </td>
+
+                      <td style={styles.td}>
+                        <strong>{item.targetLanguage?.toUpperCase()}</strong>
+                        {" → "}
+                        {item.translatedText}
+                      </td>
+
+                      <td style={styles.td}>
+                        <button
+                          style={styles.deleteButton}
+                          onClick={() =>
+                            handleDelete(item.translationId)
+                          }
+                        >
+                          🗑
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -753,34 +793,39 @@ const languageOptions = (
 const styles = {
   page: {
     minHeight: "100vh",
+    width: "100vw",
     background: "linear-gradient(135deg, #667eea, #764ba2)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
     padding: "40px",
+    boxSizing: "border-box",
   },
+
   container: {
     width: "100%",
-    maxWidth: "1100px",
+    minHeight: "100%",
     background: "white",
     borderRadius: "20px",
     padding: "40px",
     boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
+    boxSizing: "border-box",
   },
+
   title: {
     textAlign: "center",
     marginBottom: "30px",
   },
+
   languageRow: {
     display: "flex",
     justifyContent: "center",
     gap: "20px",
     marginBottom: "30px",
   },
+
   select: {
     padding: "10px",
     borderRadius: "8px",
   },
+
   swapButton: {
     padding: "10px",
     borderRadius: "50%",
@@ -789,23 +834,27 @@ const styles = {
     color: "white",
     cursor: "pointer",
   },
+
   splitArea: {
     display: "flex",
     gap: "20px",
     marginBottom: "20px",
   },
+
   textarea: {
     flex: 1,
     padding: "15px",
     borderRadius: "10px",
     border: "1px solid #ccc",
   },
+
   outputArea: {
     flex: 1,
     padding: "15px",
     borderRadius: "10px",
     background: "#f3f4ff",
   },
+
   translateButton: {
     width: "100%",
     padding: "15px",
@@ -816,6 +865,7 @@ const styles = {
     color: "white",
     cursor: "pointer",
   },
+
   historyButton: {
     width: "100%",
     padding: "12px",
@@ -825,50 +875,55 @@ const styles = {
     color: "white",
     cursor: "pointer",
   },
+
   historyContainer: {
-  marginTop: "40px",
-  background: "#ffffff",
-  padding: "30px",
-  borderRadius: "15px",
-  width: "100%",
-  overflowX: "auto",
-},
+    marginTop: "40px",
+    width: "100%",
+    overflowX: "auto",
+  },
 
-historyHeader: {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: "20px",
-},
+  historyHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "20px",
+  },
 
-closeButton: {
-  border: "none",
-  background: "red",
-  color: "white",
-  borderRadius: "50%",
-  width: "35px",
-  height: "35px",
-  cursor: "pointer",
-  fontSize: "16px",
-},
+  closeButton: {
+    border: "none",
+    background: "red",
+    color: "white",
+    borderRadius: "50%",
+    width: "35px",
+    height: "35px",
+    cursor: "pointer",
+  },
 
-table: {
-  width: "100%",
-  borderCollapse: "collapse",
-},
+  table: {
+    width: "100%",
+    borderCollapse: "collapse",
+  },
 
-th: {
-  borderBottom: "2px solid #ddd",
-  padding: "15px",
-  textAlign: "left",
-  background: "#f3f4ff",
-},
+  th: {
+    borderBottom: "2px solid #ddd",
+    padding: "15px",
+    textAlign: "left",
+    background: "#f3f4ff",
+  },
 
-td: {
-  padding: "15px",
-  borderBottom: "1px solid #eee",
-  verticalAlign: "top",
-},
+  td: {
+    padding: "15px",
+    borderBottom: "1px solid #eee",
+  },
+
+  deleteButton: {
+    border: "none",
+    background: "#ff4d4d",
+    color: "white",
+    padding: "8px 12px",
+    borderRadius: "8px",
+    cursor: "pointer",
+  },
 };
 
 export default App;
